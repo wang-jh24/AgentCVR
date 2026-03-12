@@ -1,0 +1,116 @@
+hydra:
+  searchpath:
+    - file://verl/trainer/config
+
+defaults:
+  - ppo_trainer
+  - _self_
+
+# CrossVid video analysis + Qwen3-8B + GRPO training config
+data:
+  max_prompt_length: 8192  # Qwen3 supports long context
+  max_response_length: 4096
+  train_batch_size: 32
+  val_batch_size: 32
+  return_raw_chat: True
+
+actor_rollout_ref:
+  # Model config
+  model:
+    path: "Qwen/Qwen3-8B"  # Main agent model
+    enable_gradient_checkpointing: True
+    
+  # Hybrid engine (training + inference)
+  hybrid_engine: True
+  
+  # Actor training (tune these as needed)
+  actor:
+    strategy: fsdp              # Strategy: fsdp or megatron
+    ppo_epochs: 4               # PPO epochs per batch
+    ppo_mini_batch_size: 32     # Mini-batch size, memory-friendly
+    
+    # Learning rate; 8B model can use slightly larger LR
+    optim:
+      lr: 2e-7                   # Try 1e-6 or 2e-6 for 8B
+      
+  # Rollout config
+  rollout:
+    name: sglang
+    prompt_length: 8192
+    response_length: 4096
+    
+    #quantization: fp8
+    #kv_cache_dtype: fp8_e5m2
+
+    # Generation params
+    temperature: 0.8
+    top_p: 0.9
+    top_k: 50
+    
+    # Multi-turn agent config
+    multi_turn:
+      enable: True
+      
+      # Video analysis tool config
+      tool_config_path: "examples/sglang_multiturn/config/tool_config/video_analysis_tools.yaml"
+      
+      # Turn limits
+      max_user_turns: 15  
+      max_assistant_turns: 15  
+      max_parallel_calls: 1 
+      
+      # Tool response length limit
+      max_tool_response_length: 2000
+      tool_response_truncate_side: "middle"
+      
+      # Format parser (Qwen uses standard gpt format)
+      format: "custom_json"
+    
+    # Logging
+    #log_prob: true
+    #return_logits: false
+
+  # Reference model (same as actor)
+  ref:
+    log_prob: true
+
+# Training hyperparameters
+trainer:
+  total_epochs: 3
+  save_freq: 500  # Save every 500 steps
+  eval_freq: 100  # Eval every 100 steps
+  
+  # Optimizer
+  actor:
+    optim:
+      lr: 2e-7  
+      weight_decay: 0.01
+      betas: [0.9, 0.95]
+  
+  # GRPO algorithm
+  algorithm:
+    gamma: 1.0
+    lam: 0.95
+    kl_ctrl:
+      kl_coef: 0.05
+    adv_norm: true
+    
+  # Logging
+  logger:
+    - console
+    - wandb  # If using wandb
+  project_name: "crossvid"
+  experiment_name: "agent-train"
+
+reward_model:
+  enable: False # Disable default model-based reward
+  
+# Custom reward function
+custom_reward_function:
+  path: "verl/utils/reward_score/crossvid.py" # Ensure path is correct
+  name: "compute_score"
+
+# Checkpoint config
+checkpoint:
+  save_freq: 500
+  output_dir: "checkpoints/crossvid_qwen3_grpo"

@@ -1,0 +1,38 @@
+hydra:
+  searchpath:
+    - file://verl/trainer/config
+
+defaults:
+  - ppo_trainer
+  - _self_
+
+# Video analysis multi-turn GRPO training config
+data:
+  max_prompt_length: 8192
+  max_response_length: 4096
+  train_batch_size: 128
+  return_raw_chat: True
+
+actor_rollout_ref:
+  hybrid_engine: True
+  rollout:
+    name: sglang
+    prompt_length: 8192
+    response_length: 4096
+    
+    multi_turn:
+      enable: True
+      # Video analysis tool config
+      tool_config_path: "examples/sglang_multiturn/config/tool_config/video_analysis_tools.yaml"
+      
+      # Turn limits
+      max_user_turns: 10
+      max_assistant_turns: 15
+      max_parallel_calls: 2
+      
+      # Tool response length limit
+      max_tool_response_length: 2000
+      tool_response_truncate_side: "middle"
+      
+      # Format parser
+      format: "gpt"

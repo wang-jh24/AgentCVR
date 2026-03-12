@@ -1,0 +1,30 @@
+# Environment and secrets
+.env
+.env.local
+*.env
+!.env.example
+
+# Logs (generated at runtime)
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

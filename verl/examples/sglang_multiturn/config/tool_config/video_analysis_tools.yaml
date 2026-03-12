@@ -1,0 +1,81 @@
+tools:
+  # Get video caption tool
+  - class_name: "verl.tools.video_analysis_tools.GetCaptionTool"
+    config:
+      api_url: "https://example.com/v1/chat/completions"
+      api_key: "your_api_key_here"
+      timeout: 60
+      model_name: "Qwen3-4B"  # Deployed model name
+      type: native
+    tool_schema:
+      type: "function"
+      function:
+        name: "get_caption"
+        description: "Get subtitles and dialogue for the specified video, for understanding plot context and key clues"
+        parameters:
+          type: "object"
+          properties:
+            video_index:
+              type: "integer"
+              description: "Video index to fetch captions for"
+          required: ["video_index"]
+
+  # Observe video tool
+  - class_name: "verl.tools.video_analysis_tools.ObserveTool"
+    config:
+      api_url: "https://example.com/v1/chat/completions"
+      api_key: "your_api_key_here"
+      timeout: 60
+      model_name: "Qwen3-4B"  # Deployed model name
+      type: native
+    tool_schema:
+      type: "function"
+      function:
+        name: "observe"
+        description: "Observe specified video segments in detail to get visual plot development and key frame descriptions"
+        parameters:
+          type: "object"
+          properties:
+            observation_targets:
+              type: "array"
+              description: "List of video segments to observe"
+              items:
+                type: "object"
+                properties:
+                  video_index:
+                    type: "integer"
+                    description: "Video index"
+                  start_time:
+                    type: "number"
+                    description: "Start time (seconds)"
+                  end_time:
+                    type: "number"
+                    description: "End time (seconds)"
+                  num_frames:
+                    type: "integer"
+                    description: "Number of sampled frames"
+            focus_prompt:
+              type: "string"
+              description: "Focus hint for observation, guiding the model to attend to specific aspects"
+          required: ["observation_targets"]
+
+  # Submit answer tool
+  - class_name: "verl.tools.video_analysis_tools.AnswerTool"
+    config:
+      api_url: "https://example.com/v1/chat/completions"
+      api_key: "your_api_key_here"
+      timeout: 60
+      model_name: "Qwen3-4B"  # Deployed model name
+      type: native
+    tool_schema:
+      type: "function"
+      function:
+        name: "answer"
+        description: "Submit the final answer and end the analysis flow. Call this after completing all necessary observation and analysis"
+        parameters:
+          type: "object"
+          properties:
+            final_answer:
+              type: "string"
+              description: "Final answer, e.g. option letter (A, B, C, D) or answer in other format"
+          required: ["final_answer"]

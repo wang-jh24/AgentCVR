@@ -1,0 +1,59 @@
+# Environment and secrets
+.env
+.env.local
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Agent system logs and local data
+agent_system/logs/
+agent_system/.env
+
+# Data synthesis output (optional: remove if you want to track)
+data_synthesis/*_synthesis/
+data_synthesis/generation_errors.json
+data_synthesis/failed_tasks.json
+
+# IDE and editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large or local data (do not commit videos/datasets)
+*.mp4
+*.avi
+*.mkv
+logs/
